@@ -23,4 +23,9 @@ public class GenericFunction {
     {
 
     }
+
+
+    public <T> Object call(T args1, T args2) {
+        return "";
+    }
 }
