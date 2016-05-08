@@ -15,11 +15,6 @@ public class Test {
             Object call(int a, Integer b){
                 return a + b;
             }
-            Object call(Object[] a, Object b) {
-                Object[] ba = new Object[a.length];
-                Arrays.fill(ba, b);
-                return add.call(a, ba);
-            }
         });
 
         add.addMethod(new GFMethod() {
