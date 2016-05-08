@@ -35,9 +35,9 @@ public class TestB {
                 System.err.printf("The number ", entity);
             }});
 
-        println(explain.call(123));
-        println(explain.call("Hi"));
-        println(explain.call(3.14159));
+//        println(explain.call(123));
+//        println(explain.call("Hi"));
+//        println(explain.call(3.14159));
     }
 
     public static void println(Object obj) {

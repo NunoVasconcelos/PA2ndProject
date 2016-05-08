@@ -1,9 +1,11 @@
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import ist.meic.pa.GenericFunctions.*;
 
 public class TestA {
 
-    public static void main(String args[]) {
+
+    public static void main(String args[]) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         final GenericFunction add = new GenericFunction("add");
 
@@ -13,7 +15,7 @@ public class TestA {
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(Object[] a, Object[] b) {
+            Object call(Object[] a, Object[] b) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 Object[] r = new Object[a.length];
                 for (int i = 0; i < a.length; i++) {
                     r[i] = add.call(a[i], b[i]);
@@ -22,31 +24,31 @@ public class TestA {
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(Object[] a, Object b) {
+            Object call(Object[] a, Object b) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 Object[] ba = new Object[a.length];
                 Arrays.fill(ba, b);
                 return add.call(a, ba);
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(Object a, Object b[]) {
+            Object call(Object a, Object b[]) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 Object[] aa = new Object[b.length];
                 Arrays.fill(aa, a);
                 return add.call(aa, b);
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(String a, Object b) {
+            Object call(String a, Object b) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 return add.call(Integer.decode(a), b);
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(Object a, String b) {
+            Object call(Object a, String b) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 return add.call(a, Integer.decode(b));
             }});
 
         add.addMethod(new GFMethod() {
-            Object call(Object[] a, List b) {
+            Object call(Object[] a, List b) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
                 return add.call(a, b.toArray());
             }});
 

@@ -6,32 +6,29 @@ import java.util.Arrays;
 
 public class Test {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
 
         final GenericFunction add = new GenericFunction("add");
 
         add.addMethod(new GFMethod(){
-            Object call(int a, Integer b){
+            Object call(Integer a, Integer b){
                 return a + b;
             }
         });
 
         add.addMethod(new GFMethod() {
-            Object call(String a, Object b) {
-                return add.call(Integer.decode(a), b);
+            Object call(Object[] a, Object[] b) {
+                Object[] r = new Object[a.length];
+                for (int i = 0; i < a.length; i++) {
+                    r[i] = add.call(a[i], b[i]);
+                }
+                return r;
             }});
 
-        add.addMethod(new GFMethod() {
-            Object call(Object a, String b) {
-                return add.call(a, Integer.decode(b));
-            }});
-
-        add.printFunctionsDeclared();
-
-        int a = 0;
-        System.out.println(int.class.isAssignableFrom(Number.class));
-
+        println(add.call(1, 3));
+        println(add.call(new Object[] { 1, 2, 3 }, new Object[] { 4, 5, 6 }));
+        println(add.call(new Object[] { new Object[] { 1, 2 }, 3 },
+                new Object[] { new Object[] { 3, 4 }, 5 }));
 
     }
 

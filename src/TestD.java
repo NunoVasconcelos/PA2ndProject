@@ -3,6 +3,7 @@ import ist.meic.pa.GenericFunctions.*;
 
 public class TestD {
 
+    /*
     public static void main(String args[]) {
 
         final GenericFunction add = new GenericFunction("add");
@@ -35,6 +36,7 @@ public class TestD {
             System.err.println(obj);
         }
     }
+    */
 }
 
 /*
