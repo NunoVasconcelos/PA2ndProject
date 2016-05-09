@@ -16,12 +16,6 @@ public class Test {
             }
         });
 
-        add.addMethod(new GFMethod(){
-            Object call(Integer a, Integer b, Integer c){
-                return a + b + c;
-            }
-        });
-
         add.addMethod(new GFMethod() {
             Object call(Object[] a, Object[] b) {
                 Object[] r = new Object[a.length];
@@ -31,7 +25,6 @@ public class Test {
                 return r;
             }});
 
-        println(add.call(1, 3, 4));
         println(add.call(1, 3));
         println(add.call(new Object[] { 1, 2, 3 }, new Object[] { 4, 5, 6 }));
         println(add.call(new Object[] { new Object[] { 1, 2 }, 3 },

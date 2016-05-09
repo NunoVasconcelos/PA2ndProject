@@ -2,18 +2,19 @@ package ist.meic.pa.GenericFunctions;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class GenericFunction<T> {
+public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
 
 
     //hashMap has all the methods that the user added
-    HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
+    HashMap<ArrayList<Class>, GFMethod> hashMap = new HashMap<>();
 
     //applicableMethods will have all the applicable methods to the current call that the user needs
-    ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
+    ArrayList<ArrayList<Class>> applicableMethods = new ArrayList<>();
 
     public GenericFunction(String functionName)
     {
@@ -27,7 +28,7 @@ public class GenericFunction<T> {
         for (Method method : anonymousMethods)
         {
             int numberOfArgs = method.getParameterCount();
-            ArrayList<Class<?>> argTypes = new ArrayList<>();
+            ArrayList<Class> argTypes = new ArrayList<>();
 
             if (numberOfArgs > 0)
             {
@@ -71,22 +72,22 @@ public class GenericFunction<T> {
         }
 
 
-//        try {
-//            Method finalMethod = hashMap.get(args).getClass().getDeclaredMethod("call", classes);
-//            finalMethod.setAccessible(true);
-//            result = finalMethod.invoke(hashMap.get(args), x[0], x[1]);
-//        } catch (Exception e) {
-//            //TODO tratar a excepção de não haver métodos
-//            e.printStackTrace();
-//        }
+        try {
+            Method finalMethod = hashMap.get(args).getClass().getDeclaredMethod("call", classes);
+            finalMethod.setAccessible(true);
+            result = finalMethod.invoke(hashMap.get(args), x[0], x[1]);
+        } catch (Exception e) {
+            //TODO tratar a excepção de não haver métodos
+            e.printStackTrace();
+        }
         return result;
     }
 
     public void getApplicableMethods(T ...x) {
 
         //Iterates the hashmap
-        for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: hashMap.entrySet()) {
-
+        for (Map.Entry<ArrayList<Class>, GFMethod> entry: hashMap.entrySet()) {
+            
             //isApplicable decides if this method will or will not be added to the applicableMethods ArrayList
             boolean isApplicable = true;
 
@@ -105,11 +106,28 @@ public class GenericFunction<T> {
 
             //If all the parameters are assignable from the parameters given, it is applicable
             if (isApplicable)
+            {
+                System.out.println("É aplicável!");
                 applicableMethods.add(entry.getKey());
+                System.out.println(entry.getKey().get(0));
+                System.out.println(entry.getKey().get(1));
+            }
         }
+
+
     }
 
+    @Override
+    public int compareTo(GenericFunction<T> o) {
+        return 0;
+    }
 
+    public static Comparator<GenericFunction> applicableMethodsComparator = new Comparator<GenericFunction>() {
+        @Override
+        public int compare(GenericFunction o1, GenericFunction o2) {
+            return 0;
+        }
+    };
 
 
     //TODO usar introspecção para escolher o método certo e depois invocá-lo
