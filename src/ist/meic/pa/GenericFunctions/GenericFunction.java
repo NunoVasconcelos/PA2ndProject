@@ -1,16 +1,19 @@
 package ist.meic.pa.GenericFunctions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class GenericFunction<T> {
 
-    HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
-    Method finalMethod;
 
+    //hashMap has all the methods that the user added
+    HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
+
+    //applicableMethods will have all the applicable methods to the current call that the user needs
+    ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
 
     public GenericFunction(String functionName)
     {
@@ -29,7 +32,10 @@ public class GenericFunction<T> {
             if (numberOfArgs > 0)
             {
                 for (int i = 0; i < numberOfArgs; i++)
+                {
                     argTypes.add(method.getParameterTypes()[i]);
+
+                }
             }
 
             hashMap.put(argTypes, gfMethod);
@@ -50,25 +56,60 @@ public class GenericFunction<T> {
     public Object call(T ...x){
 
         Object result = new Object();
-        int numberOfArgs = x.length;
-        ArrayList<Class<?>> args = new ArrayList<>();
-        Class[] classes = new Class[numberOfArgs];
 
-        for (int i = 0; i < numberOfArgs; i++)
+        //Will fill the applicableMethods ArrayList with all the applicable methods
+        getApplicableMethods(x);
+
+
+        ArrayList<Class<?>> args = new ArrayList<>();
+        Class[] classes = new Class[x.length];
+
+        for (int i = 0; i < x.length; i++)
         {
             args.add(x[i].getClass());
             classes[i] = x[i].getClass();
         }
 
-        try {
-            finalMethod = hashMap.get(args).getClass().getDeclaredMethod("call", classes);
-            finalMethod.setAccessible(true);
-            result = finalMethod.invoke(hashMap.get(args), x[0], x[1]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+//        try {
+//            Method finalMethod = hashMap.get(args).getClass().getDeclaredMethod("call", classes);
+//            finalMethod.setAccessible(true);
+//            result = finalMethod.invoke(hashMap.get(args), x[0], x[1]);
+//        } catch (Exception e) {
+//            //TODO tratar a excepção de não haver métodos
+//            e.printStackTrace();
+//        }
         return result;
     }
+
+    public void getApplicableMethods(T ...x) {
+
+        //Iterates the hashmap
+        for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: hashMap.entrySet()) {
+
+            //isApplicable decides if this method will or will not be added to the applicableMethods ArrayList
+            boolean isApplicable = true;
+
+
+            //Iterates the ArrayList that has the classes of the parameters
+            for (int i = 0; i < entry.getKey().size(); i++) {
+
+                //TODO add protection to the case of different number of arguments
+
+                //If at least one of the arguments is not applicable, isApplicable turns false so that this method is
+                //not added to the applicableMethods ArrayList
+                if (!entry.getKey().get(i).getClass().isAssignableFrom(x[i].getClass())) {
+                    isApplicable = false;
+                }
+            }
+
+            //If all the parameters are assignable from the parameters given, it is applicable
+            if (isApplicable)
+                applicableMethods.add(entry.getKey());
+        }
+    }
+
+
 
 
     //TODO usar introspecção para escolher o método certo e depois invocá-lo
