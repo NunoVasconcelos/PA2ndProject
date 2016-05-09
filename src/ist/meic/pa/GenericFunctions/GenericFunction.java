@@ -11,10 +11,10 @@ public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
 
 
     //hashMap has all the methods that the user added
-    HashMap<ArrayList<Class>, GFMethod> hashMap = new HashMap<>();
+    HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
 
     //applicableMethods will have all the applicable methods to the current call that the user needs
-    ArrayList<ArrayList<Class>> applicableMethods = new ArrayList<>();
+    ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
 
     public GenericFunction(String functionName)
     {
@@ -28,7 +28,7 @@ public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
         for (Method method : anonymousMethods)
         {
             int numberOfArgs = method.getParameterCount();
-            ArrayList<Class> argTypes = new ArrayList<>();
+            ArrayList<Class<?>> argTypes = new ArrayList<>();
 
             if (numberOfArgs > 0)
             {
@@ -61,7 +61,6 @@ public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
         //Will fill the applicableMethods ArrayList with all the applicable methods
         getApplicableMethods(x);
 
-
         ArrayList<Class<?>> args = new ArrayList<>();
         Class[] classes = new Class[x.length];
 
@@ -86,7 +85,7 @@ public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
     public void getApplicableMethods(T ...x) {
 
         //Iterates the hashmap
-        for (Map.Entry<ArrayList<Class>, GFMethod> entry: hashMap.entrySet()) {
+        for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: hashMap.entrySet()) {
             
             //isApplicable decides if this method will or will not be added to the applicableMethods ArrayList
             boolean isApplicable = true;
@@ -97,23 +96,24 @@ public class GenericFunction<T> implements Comparable<GenericFunction<T>>{
 
                 //TODO add protection to the case of different number of arguments
 
+                Class<?> hashMapClass = entry.getKey().get(i).getComponentType();
+
+                if (hashMapClass == null)
+                    hashMapClass = entry.getKey().get(i);
+
                 //If at least one of the arguments is not applicable, isApplicable turns false so that this method is
                 //not added to the applicableMethods ArrayList
-                if (!entry.getKey().get(i).getClass().isAssignableFrom(x[i].getClass())) {
+                if (!hashMapClass.isAssignableFrom(x[i].getClass())) {
                     isApplicable = false;
+                    break;
                 }
             }
 
             //If all the parameters are assignable from the parameters given, it is applicable
-            if (isApplicable)
-            {
-                System.out.println("É aplicável!");
+            if (isApplicable) {
                 applicableMethods.add(entry.getKey());
-                System.out.println(entry.getKey().get(0));
-                System.out.println(entry.getKey().get(1));
             }
         }
-
 
     }
 
