@@ -10,25 +10,37 @@ public class Test {
 
         final GenericFunction add = new GenericFunction("add");
 
+
+        add.addMethod(new GFMethod(){
+            Object call(Number a, Number b){
+                return a.intValue() + b.intValue();
+            }
+        });
+        add.addMethod(new GFMethod(){
+            Object call(Integer a, Number b){
+                return a + b.intValue();
+            }
+        });
+        add.addMethod(new GFMethod(){
+            Object call(Number a, Integer b){
+                return a.intValue() + b;
+            }
+        });
+
         add.addMethod(new GFMethod(){
             Object call(Integer a, Integer b){
                 return a + b;
             }
         });
 
-        add.addMethod(new GFMethod() {
-            Object call(Object[] a, Object[] b) {
-                Object[] r = new Object[a.length];
-                for (int i = 0; i < a.length; i++) {
-                    r[i] = add.call(a[i], b[i]);
-                }
-                return r;
-            }});
 
-        println(add.call(1, 3));
-        println(add.call(new Object[] { 1, 2, 3 }, new Object[] { 4, 5, 6 }));
-        println(add.call(new Object[] { new Object[] { 1, 2 }, 3 },
-                new Object[] { new Object[] { 3, 4 }, 5 }));
+
+        add.call(1, 3);
+
+//        println(add.call(1, 3));
+//        println(add.call(new Object[] { 1, 2, 3 }, new Object[] { 4, 5, 6 }));
+//        println(add.call(new Object[] { new Object[] { 1, 2 }, 3 },
+//                new Object[] { new Object[] { 3, 4 }, 5 }));
 
     }
 
