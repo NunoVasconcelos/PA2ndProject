@@ -154,7 +154,7 @@ public class GenericFunction<T> {
                     if (o1.get(i).equals(o2.get(i)))
                         continue;
 
-                    //If the classes are not equals, it will return 1 if the first is a superclass of the second one
+                    //Case of <Object, Object>
                     if(o1.get(i).getComponentType() == null && o2.get(i).getComponentType() == null)
                     {
                         if (o1.get(i).isAssignableFrom(o2.get(i)))
@@ -162,6 +162,7 @@ public class GenericFunction<T> {
                         else
                             return -1;
                     }
+                    //Case of <Object, Object[]>
                     else if(o1.get(i).getComponentType() == null && o2.get(i).getComponentType() != null)
                     {
                         if (o1.get(i).equals(o2.get(i).getComponentType()))
@@ -171,6 +172,7 @@ public class GenericFunction<T> {
                         else
                             return -1;
                     }
+                    //Case of <Object[], Object>
                     else if (o1.get(i).getComponentType() != null && o2.get(i).getComponentType() == null)
                     {
                         if(o1.get(i).getComponentType().equals(o2.get(i)))
@@ -180,6 +182,7 @@ public class GenericFunction<T> {
                         else
                             return -1;
                     }
+                    //Case of <Object[], Object[]>
                     else
                     {
                         if (o1.get(i).getComponentType().equals(o2.get(i).getComponentType()))
@@ -189,7 +192,6 @@ public class GenericFunction<T> {
                         else
                             return -1;
                     }
-
                 }
                 return 0;
         });
