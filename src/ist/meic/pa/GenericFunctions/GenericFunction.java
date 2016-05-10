@@ -6,12 +6,15 @@ import java.util.*;
 
 public class GenericFunction<T> {
 
-
     //hashMap has all the methods that the user added
-    HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
+    private HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
+    private HashMap<ArrayList<Class<?>>, GFMethod> beforeMap = new HashMap<>();
+    private HashMap<ArrayList<Class<?>>, GFMethod> afterMap = new HashMap<>();
 
     //applicableMethods will have all the applicable methods to the current call that the user needs
-    ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
+    private ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
+    private ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
+    private ArrayList<ArrayList<Class<?>>> applicableAfterMethods = new ArrayList<>();
 
     public GenericFunction(String functionName)
     {
@@ -40,15 +43,46 @@ public class GenericFunction<T> {
         }
     }
 
-
     public void addBeforeMethod(GFMethod gfMethod)
     {
+        Method[] anonymousMethods = gfMethod.getClass().getDeclaredMethods();
+        for (Method method : anonymousMethods)
+        {
+            int numberOfArgs = method.getParameterCount();
+            ArrayList<Class<?>> argTypes = new ArrayList<>();
 
+            if (numberOfArgs > 0)
+            {
+                for (int i = 0; i < numberOfArgs; i++)
+                {
+                    argTypes.add(method.getParameterTypes()[i]);
+
+                }
+            }
+
+            beforeMap.put(argTypes, gfMethod);
+        }
     }
 
     public void addAfterMethod(GFMethod gfMethod)
     {
+        Method[] anonymousMethods = gfMethod.getClass().getDeclaredMethods();
+        for (Method method : anonymousMethods)
+        {
+            int numberOfArgs = method.getParameterCount();
+            ArrayList<Class<?>> argTypes = new ArrayList<>();
 
+            if (numberOfArgs > 0)
+            {
+                for (int i = 0; i < numberOfArgs; i++)
+                {
+                    argTypes.add(method.getParameterTypes()[i]);
+
+                }
+            }
+
+            afterMap.put(argTypes, gfMethod);
+        }
     }
 
     public Object call(T ...x){
@@ -56,12 +90,18 @@ public class GenericFunction<T> {
         Object result = new Object();
 
         //getApplicableMethods will fill the applicableMethods ArrayList with all the applicable methods
-        getApplicableMethods(x);
+        getApplicableMethods(applicableBeforeMethods,beforeMap,x);
+        getApplicableMethods(applicableMethods,hashMap,x);
+        getApplicableMethods(applicableAfterMethods,afterMap,x);
 
+        //Sort the lists by specificity
+        sortApplicableMethods(applicableBeforeMethods);
+        sortApplicableMethods(applicableMethods);
+        sortApplicableMethods(applicableAfterMethods);
 
+        applicableBeforeMethods.addAll(applicableMethods);
+        applicableBeforeMethods.addAll(applicableAfterMethods);
 
-        //Sort the list by specificity, from left to right
-        sortApplicableMethods();
 
 
         //To check if the list is sorted
@@ -109,10 +149,10 @@ public class GenericFunction<T> {
         return result;
     }
 
-    public void getApplicableMethods(T ...x) {
+    public void getApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods, HashMap<ArrayList<Class<?>>, GFMethod> map ,T ...x) {
 
         //Iterates the hashmap
-        for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: hashMap.entrySet()) {
+        for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: map.entrySet()) {
             
             //isApplicable decides if this method will or will not be added to the applicableMethods ArrayList
             boolean isApplicable = true;
@@ -123,10 +163,7 @@ public class GenericFunction<T> {
 
                 //TODO add protection to the case of different number of arguments
 
-                Class<?> hashMapClass = entry.getKey().get(i).getComponentType();
-
-                if (hashMapClass == null)
-                    hashMapClass = entry.getKey().get(i);
+                Class<?> hashMapClass = entry.getKey().get(i);
 
                 //If at least one of the arguments is not applicable, isApplicable turns false so that this method is
                 //not added to the applicableMethods ArrayList
@@ -145,7 +182,8 @@ public class GenericFunction<T> {
 
     }
 
-    public void sortApplicableMethods()
+
+    public void sortApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods)
     {
 
         //Sort the list with the new Comparator<ArrayList<Class<?>>>
