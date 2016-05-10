@@ -61,8 +61,10 @@ public class GenericFunction<T> {
 
 
         //Sort the list by specificity, from left to right
-        sortingFunction();
+        sortApplicableMethods();
 
+
+        //To check if the list is sorted
         for (ArrayList<Class<?>> k:
                 applicableMethods) {
             int i = 0;
@@ -143,7 +145,7 @@ public class GenericFunction<T> {
 
     }
 
-    public void sortingFunction()
+    public void sortApplicableMethods()
     {
 
         //Sort the list with the new Comparator<ArrayList<Class<?>>>
@@ -154,44 +156,10 @@ public class GenericFunction<T> {
                     if (o1.get(i).equals(o2.get(i)))
                         continue;
 
-                    //Case of <Object, Object>
-                    if(o1.get(i).getComponentType() == null && o2.get(i).getComponentType() == null)
-                    {
-                        if (o1.get(i).isAssignableFrom(o2.get(i)))
-                            return 1;
-                        else
-                            return -1;
-                    }
-                    //Case of <Object, Object[]>
-                    else if(o1.get(i).getComponentType() == null && o2.get(i).getComponentType() != null)
-                    {
-                        if (o1.get(i).equals(o2.get(i).getComponentType()))
-                            return -1;
-                        if (o1.get(i).isAssignableFrom(o2.get(i).getComponentType()))
-                            return 1;
-                        else
-                            return -1;
-                    }
-                    //Case of <Object[], Object>
-                    else if (o1.get(i).getComponentType() != null && o2.get(i).getComponentType() == null)
-                    {
-                        if(o1.get(i).getComponentType().equals(o2.get(i)))
-                            return 1;
-                        if (o1.get(i).getComponentType().isAssignableFrom(o2.get(i)))
-                            return 1;
-                        else
-                            return -1;
-                    }
-                    //Case of <Object[], Object[]>
+                    if (o1.get(i).isAssignableFrom(o2.get(i)))
+                        return 1;
                     else
-                    {
-                        if (o1.get(i).getComponentType().equals(o2.get(i).getComponentType()))
-                            continue;
-                        if (o1.get(i).getComponentType().isAssignableFrom(o2.get(i).getComponentType()))
-                            return 1;
-                        else
-                            return -1;
-                    }
+                        return -1;
                 }
                 return 0;
         });
