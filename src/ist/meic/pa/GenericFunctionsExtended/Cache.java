@@ -13,4 +13,9 @@ public class Cache {
     {
         cachedMethods.put(key,value);
     }
+
+    public boolean containsKey(ArrayList<Class<?>> key)
+    {
+        return cachedMethods.containsKey(key);
+    }
 }
