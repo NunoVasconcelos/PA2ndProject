@@ -13,7 +13,7 @@ class Screen extends Device {}
 class Printer extends Device {}
 
 public class TestC {
-/*
+
     public static void main(String[] args) {
 
         final GenericFunction draw = new GenericFunction("draw");
@@ -82,7 +82,7 @@ public class TestC {
         }
     }
 
-    */
+
 }
 
 /*

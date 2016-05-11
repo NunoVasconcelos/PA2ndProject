@@ -11,10 +11,7 @@ public class GenericFunction<T> {
     private HashMap<ArrayList<Class<?>>, GFMethod> beforeMap = new HashMap<>();
     private HashMap<ArrayList<Class<?>>, GFMethod> afterMap = new HashMap<>();
 
-    //applicableMethods will have all the applicable methods to the current call that the user needs
-    private ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
-    private ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
-    private ArrayList<ArrayList<Class<?>>> applicableAfterMethods = new ArrayList<>();
+
 
     public GenericFunction(String functionName)
     {
@@ -56,7 +53,6 @@ public class GenericFunction<T> {
                 for (int i = 0; i < numberOfArgs; i++)
                 {
                     argTypes.add(method.getParameterTypes()[i]);
-
                 }
             }
 
@@ -77,7 +73,6 @@ public class GenericFunction<T> {
                 for (int i = 0; i < numberOfArgs; i++)
                 {
                     argTypes.add(method.getParameterTypes()[i]);
-
                 }
             }
 
@@ -85,9 +80,16 @@ public class GenericFunction<T> {
         }
     }
 
+
     public Object call(T ...x){
 
         Object result = new Object();
+
+        //applicableMethods will have all the applicable methods to the current call that the user needs
+        ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
+        ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
+        ArrayList<ArrayList<Class<?>>> applicableAfterMethods = new ArrayList<>();
+
 
         //getApplicableMethods will fill the applicableMethods ArrayList with all the applicable methods
         getApplicableMethods(applicableBeforeMethods,beforeMap,x);
@@ -99,57 +101,55 @@ public class GenericFunction<T> {
         sortApplicableMethods(applicableMethods);
         sortApplicableMethods(applicableAfterMethods);
 
-        applicableBeforeMethods.addAll(applicableMethods);
+        if (applicableMethods.isEmpty())
+            throw new IllegalArgumentException();
+        applicableBeforeMethods.add(applicableMethods.get(0));
         applicableBeforeMethods.addAll(applicableAfterMethods);
 
 
+        try {
 
-        //To check if the list is sorted
-        for (ArrayList<Class<?>> k:
-                applicableMethods) {
-            int i = 0;
-            while(i < k.size())
+
+            //Need a foreach, because every before method needs to be called.
+//            for (ArrayList<Class<?>> beforeMethodClasses : applicableBeforeMethods)
+//            {
+//                Class[] classes = new Class[beforeMethodClasses.size()];
+//                for (int i = 0; i < beforeMethodClasses.size(); i++)
+//                {
+//                    classes[i] = beforeMethodClasses.get(i);
+//                }
+//                GFMethod beforeMethodToBeCalled = beforeMap.get(beforeMethodClasses);
+//                Method beforeMethod = beforeMethodToBeCalled.getClass().getDeclaredMethod("call", classes);
+//                beforeMethod.setAccessible(true);
+//
+//                //TODO falta aqui result
+//            }
+
+
+
+            //Get the Class[] needed to use in getDeclaredMethod()
+            ArrayList<Class<?>> args = applicableMethods.get(0);
+            Class[] classes = new Class[args.size()];
+            for (int i = 0; i < args.size(); i++)
             {
-                if (i == 1)
-                {
-                    System.out.println(k.get(i));
-                }
-                else
-                {
-                    System.out.print(k.get(i) + " ");
-                }
-
-
-                i++;
+                classes[i] = args.get(i);
             }
 
+            //Get the GFMethod with the right call function
+            GFMethod methodToBeCalled = hashMap.get(args);
+            Method finalMethod = methodToBeCalled.getClass().getDeclaredMethod("call", classes);
+            finalMethod.setAccessible(true);
 
+            //Invoke the call function, giving the VarArgs that we received
+            result = finalMethod.invoke(methodToBeCalled, x);
+
+        } catch (Exception e) {
+            System.out.println(e);
         }
-
-
-
-//        ArrayList<Class<?>> args = new ArrayList<>();
-//        Class[] classes = new Class[x.length];
-//
-//        for (int i = 0; i < x.length; i++)
-//        {
-//            args.add(x[i].getClass());
-//            classes[i] = x[i].getClass();
-//        }
-//
-//
-//        try {
-//            Method finalMethod = hashMap.get(args).getClass().getDeclaredMethod("call", classes);
-//            finalMethod.setAccessible(true);
-//            result = finalMethod.invoke(hashMap.get(args), x[0], x[1]);
-//        } catch (Exception e) {
-//            //TODO tratar a excepção de não haver métodos
-//            e.printStackTrace();
-//        }
         return result;
     }
 
-    public void getApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods, HashMap<ArrayList<Class<?>>, GFMethod> map ,T ...x) {
+    private void getApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods, HashMap<ArrayList<Class<?>>, GFMethod> map ,T ...x) {
 
         //Iterates the hashmap
         for (Map.Entry<ArrayList<Class<?>>, GFMethod> entry: map.entrySet()) {
@@ -160,8 +160,6 @@ public class GenericFunction<T> {
 
             //Iterates the ArrayList that has the classes of the parameters
             for (int i = 0; i < entry.getKey().size(); i++) {
-
-                //TODO add protection to the case of different number of arguments
 
                 Class<?> hashMapClass = entry.getKey().get(i);
 
@@ -178,8 +176,6 @@ public class GenericFunction<T> {
                 applicableMethods.add(entry.getKey());
             }
         }
-
-
     }
 
 
@@ -202,12 +198,8 @@ public class GenericFunction<T> {
                 return 0;
         });
 
-
     }
 
-    //TODO usar introspecção para escolher o método certo e depois invocá-lo
-    //TODO primeiro verificar se existem métodos aplicáveis, e fazer uma lista destes
-    //TODO depois, tendo a lista dos métodos aplicáveis, ordenar os métodos por especificidade
-    //TODO depois de tê-los ordenados, ver qual é o método que vai ser chamado
-    //TODO depois de saber o método, invocar o before/after com esse método
+    //TODO after tem de ser organizado ao contrário
+    //TODO falta tratar a excepção
 }
