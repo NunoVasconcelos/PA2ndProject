@@ -1,7 +1,6 @@
 package ist.meic.pa.GenericFunctions;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
+
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -108,13 +107,21 @@ public class GenericFunction<T> {
         if (applicableMethods.isEmpty())
         {
             ArrayList<Object> args = new ArrayList<>();
+            ArrayList<Object> classes = new ArrayList<>();
             for (int i = 0; i < x.length; i++)
             {
-                args.add(x[i]);
+                if(x[i] instanceof Object[])
+                    args.add(Arrays.deepToString((Object[]) x[i]));
+                else
+                    args.add(x[i]);
+
+                classes.add(x[i].getClass());
             }
-            throw new IllegalArgumentException("No methods for generic function " + functionName
+
+
+            throw new IllegalArgumentException("\nNo methods for generic function " + functionName
                     + " with args "  + args +
-                    " of classes ");
+                    "\nof classes " + classes);
 //            No methods for generic function add with args [[1, 2], 3]
 //            of classes [class [Ljava.lang.Object;, class java.lang.Integer]
 
@@ -228,5 +235,4 @@ public class GenericFunction<T> {
     }
 
     //TODO after tem de ser organizado ao contrário
-    //TODO falta tratar a excepção
 }
