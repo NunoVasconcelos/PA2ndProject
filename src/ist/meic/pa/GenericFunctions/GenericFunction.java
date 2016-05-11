@@ -29,7 +29,6 @@ public class GenericFunction<T> {
         this.functionName = functionName;
     }
 
-    //TODO aproveitar do professor e adicionar o gfMethod em vez do método call mesmo
     public void addMethod(GFMethod gfMethod)
     {
         cache = new Cache();
@@ -142,13 +141,9 @@ public class GenericFunction<T> {
                 classes.add(x[i].getClass());
             }
 
-
             throw new IllegalArgumentException("\nNo methods for generic function " + functionName
                     + " with args "  + args +
                     "\nof classes " + classes);
-//            No methods for generic function add with args [[1, 2], 3]
-//            of classes [class [Ljava.lang.Object;, class java.lang.Integer]
-
         }
 
         try {
@@ -293,6 +288,4 @@ public class GenericFunction<T> {
 
         return paramsClasses;
     }
-
-    //TODO after tem de ser organizado ao contrário
 }
