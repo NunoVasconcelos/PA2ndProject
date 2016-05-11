@@ -1,6 +1,8 @@
 package ist.meic.pa.GenericFunctions;
 
 
+import ist.meic.pa.GenericFunctionsExtended.Cache;
+
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -11,6 +13,8 @@ public class GenericFunction<T> {
 
     private final String ASCENDING_FLAG = "ascending";
     private final String DESCENDING_FLAG = "descending";
+
+    private Cache cache = new Cache();
 
     //hashMap has all the methods that the user added
     private HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
@@ -27,6 +31,7 @@ public class GenericFunction<T> {
     //TODO aproveitar do professor e adicionar o gfMethod em vez do método call mesmo
     public void addMethod(GFMethod gfMethod)
     {
+        cache = new Cache();
         Method[] anonymousMethods = gfMethod.getClass().getDeclaredMethods();
         for (Method method : anonymousMethods)
         {
@@ -48,6 +53,7 @@ public class GenericFunction<T> {
 
     public void addBeforeMethod(GFMethod gfMethod)
     {
+        cache = new Cache();
         Method[] anonymousMethods = gfMethod.getClass().getDeclaredMethods();
         for (Method method : anonymousMethods)
         {
@@ -68,6 +74,7 @@ public class GenericFunction<T> {
 
     public void addAfterMethod(GFMethod gfMethod)
     {
+        cache = new Cache();
         Method[] anonymousMethods = gfMethod.getClass().getDeclaredMethods();
         for (Method method : anonymousMethods)
         {
@@ -90,6 +97,8 @@ public class GenericFunction<T> {
     public Object call(T ...x){
 
         Object result = new Object();
+        ArrayList<Method> methodsToCache = new ArrayList<>();
+        ArrayList<Class<?>> keysToCache = getClasses(x);
 
         //applicableMethods will have all the applicable methods to the current call that the user needs
         ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
@@ -146,6 +155,7 @@ public class GenericFunction<T> {
                 beforeMethod.setAccessible(true);
 
                 beforeMethod.invoke(MethodToBeCalled, x);
+                methodsToCache.add(beforeMethod);
             }
 
             //Get the Class[] needed to use in getDeclaredMethod()
@@ -163,6 +173,8 @@ public class GenericFunction<T> {
 
             //Invoke the call function, giving the VarArgs that we received
             result = finalMethod.invoke(methodToBeCalled, x);
+            methodsToCache.add(finalMethod);
+
 
             //Need a foreach, because every before method needs to be called.
             for (ArrayList<Class<?>> afterMethodClasses : applicableAfterMethods)
@@ -177,11 +189,14 @@ public class GenericFunction<T> {
                 beforeMethod.setAccessible(true);
 
                 beforeMethod.invoke(MethodToBeCalled, x);
+                methodsToCache.add(beforeMethod);
             }
 
         } catch (Exception e) {
             System.out.println(e);
         }
+
+        cache.addToCache(keysToCache,methodsToCache);
 
         return result;
     }
@@ -253,6 +268,18 @@ public class GenericFunction<T> {
                 return 0;
         });
 
+    }
+
+    public ArrayList<Class<?>> getClasses(T... params)
+    {
+        ArrayList<Class<?>> paramsClasses = new ArrayList<>();
+
+        for(int i = 0 ; i< params.length ; i++)
+        {
+            paramsClasses.add(params[i].getClass());
+        }
+
+        return paramsClasses;
     }
 
     //TODO after tem de ser organizado ao contrário
