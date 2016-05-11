@@ -9,6 +9,9 @@ public class GenericFunction<T> {
 
     private String functionName;
 
+    private final String ASCENDING_FLAG = "ascending";
+    private final String DESCENDING_FLAG = "descending";
+
     //hashMap has all the methods that the user added
     private HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
     private HashMap<ArrayList<Class<?>>, GFMethod> beforeMap = new HashMap<>();
@@ -100,9 +103,9 @@ public class GenericFunction<T> {
         getApplicableMethods(applicableAfterMethods,afterMap,x);
 
         //Sort the lists by specificity
-        sortApplicableMethods(applicableBeforeMethods);
-        sortApplicableMethods(applicableMethods);
-        sortApplicableMethods(applicableAfterMethods);
+        sortApplicableMethods(applicableBeforeMethods,ASCENDING_FLAG);
+        sortApplicableMethods(applicableMethods,ASCENDING_FLAG);
+        sortApplicableMethods(applicableAfterMethods,DESCENDING_FLAG);
 
         if (applicableMethods.isEmpty())
         {
@@ -213,7 +216,7 @@ public class GenericFunction<T> {
     }
 
 
-    public void sortApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods)
+    public void sortApplicableMethods(ArrayList<ArrayList<Class<?>>> applicableMethods, String flag)
     {
 
         //Sort the list with the new Comparator<ArrayList<Class<?>>>
@@ -225,9 +228,27 @@ public class GenericFunction<T> {
                         continue;
 
                     if (o1.get(i).isAssignableFrom(o2.get(i)))
-                        return 1;
+                    {
+                        if(flag.equals("ascending"))
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
                     else
-                        return -1;
+                    {
+                        if(flag.equals("descending"))
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
+                    }
                 }
                 return 0;
         });
