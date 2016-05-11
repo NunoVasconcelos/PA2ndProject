@@ -3,6 +3,7 @@ package ist.meic.pa.GenericFunctions;
 
 import ist.meic.pa.GenericFunctionsExtended.Cache;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -99,6 +100,17 @@ public class GenericFunction<T> {
         Object result = new Object();
         ArrayList<Method> methodsToCache = new ArrayList<>();
         ArrayList<Class<?>> keysToCache = getClasses(x);
+
+        if(cache.containsKey(keysToCache))
+        {
+            try {
+                cache.invokeMethods(keysToCache,new Object(),x);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
 
         //applicableMethods will have all the applicable methods to the current call that the user needs
         ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
