@@ -1,0 +1,27 @@
+<project name="2ndPAProject" default="jar" basedir=".">
+
+    <description>
+        to compile: ant
+		to compile class to be tested: javac -cp .;genericFunction.jar [path to class to be compiled, Ex: TestA.java]
+        to run: java -cp .;genericFunction.jar [path to class Ex: TestA]
+    </description>
+
+	<target name="clean">
+		<delete dir="build"/>
+        <delete file="genericFunction.jar"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="build/classes"/>
+		<javac srcdir="src" destdir="build/classes"/>
+	</target>
+
+	<target name="jar" depends="compile">
+        <jar destfile="genericFunction.jar" basedir="./build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="ist.meic.pa"/>
+            </manifest>
+        </jar>
+	</target>
+
+</project>
