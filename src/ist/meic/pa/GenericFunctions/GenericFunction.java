@@ -1,10 +1,14 @@
 package ist.meic.pa.GenericFunctions;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.*;
 
 
 public class GenericFunction<T> {
+
+    private String functionName;
 
     //hashMap has all the methods that the user added
     private HashMap<ArrayList<Class<?>>, GFMethod> hashMap = new HashMap<>();
@@ -15,7 +19,7 @@ public class GenericFunction<T> {
 
     public GenericFunction(String functionName)
     {
-
+        this.functionName = functionName;
     }
 
     //TODO aproveitar do professor e adicionar o gfMethod em vez do método call mesmo
@@ -102,30 +106,37 @@ public class GenericFunction<T> {
         sortApplicableMethods(applicableAfterMethods);
 
         if (applicableMethods.isEmpty())
-            throw new IllegalArgumentException();
-        applicableBeforeMethods.add(applicableMethods.get(0));
-        applicableBeforeMethods.addAll(applicableAfterMethods);
+        {
+            ArrayList<Object> args = new ArrayList<>();
+            for (int i = 0; i < x.length; i++)
+            {
+                args.add(x[i]);
+            }
+            throw new IllegalArgumentException("No methods for generic function " + functionName
+                    + " with args "  + args +
+                    " of classes ");
+//            No methods for generic function add with args [[1, 2], 3]
+//            of classes [class [Ljava.lang.Object;, class java.lang.Integer]
 
+        }
 
         try {
 
 
             //Need a foreach, because every before method needs to be called.
-//            for (ArrayList<Class<?>> beforeMethodClasses : applicableBeforeMethods)
-//            {
-//                Class[] classes = new Class[beforeMethodClasses.size()];
-//                for (int i = 0; i < beforeMethodClasses.size(); i++)
-//                {
-//                    classes[i] = beforeMethodClasses.get(i);
-//                }
-//                GFMethod beforeMethodToBeCalled = beforeMap.get(beforeMethodClasses);
-//                Method beforeMethod = beforeMethodToBeCalled.getClass().getDeclaredMethod("call", classes);
-//                beforeMethod.setAccessible(true);
-//
-//                //TODO falta aqui result
-//            }
+            for (ArrayList<Class<?>> beforeMethodClasses : applicableBeforeMethods)
+            {
+                Class[] classes = new Class[beforeMethodClasses.size()];
+                for (int i = 0; i < beforeMethodClasses.size(); i++)
+                {
+                    classes[i] = beforeMethodClasses.get(i);
+                }
+                GFMethod MethodToBeCalled = beforeMap.get(beforeMethodClasses);
+                Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classes);
+                beforeMethod.setAccessible(true);
 
-
+                beforeMethod.invoke(MethodToBeCalled, x);
+            }
 
             //Get the Class[] needed to use in getDeclaredMethod()
             ArrayList<Class<?>> args = applicableMethods.get(0);
@@ -143,9 +154,25 @@ public class GenericFunction<T> {
             //Invoke the call function, giving the VarArgs that we received
             result = finalMethod.invoke(methodToBeCalled, x);
 
+            //Need a foreach, because every before method needs to be called.
+            for (ArrayList<Class<?>> afterMethodClasses : applicableAfterMethods)
+            {
+                Class[] classesAfter = new Class[afterMethodClasses.size()];
+                for (int i = 0; i < afterMethodClasses.size(); i++)
+                {
+                    classesAfter[i] = afterMethodClasses.get(i);
+                }
+                GFMethod MethodToBeCalled = afterMap.get(afterMethodClasses);
+                Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classesAfter);
+                beforeMethod.setAccessible(true);
+
+                beforeMethod.invoke(MethodToBeCalled, x);
+            }
+
         } catch (Exception e) {
             System.out.println(e);
         }
+
         return result;
     }
 
