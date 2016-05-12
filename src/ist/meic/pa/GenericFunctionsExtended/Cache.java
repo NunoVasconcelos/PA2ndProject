@@ -10,6 +10,11 @@ public class Cache {
 
     private HashMap<ArrayList<Class<?>>,ArrayList<Method>> cachedMethods;
 
+    public Cache()
+    {
+        cachedMethods = new HashMap<>();
+    }
+
     public void addToCache(ArrayList<Class<?>> key,ArrayList<Method> value)
     {
         cachedMethods.put(key,value);
@@ -27,5 +32,10 @@ public class Cache {
         {
             m.invoke(obj,objs);
         }
+    }
+
+    public boolean isEmpty()
+    {
+        return cachedMethods.isEmpty();
     }
 }

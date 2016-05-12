@@ -252,24 +252,16 @@ public class GenericFunction<T> {
                     if (o1.get(i).isAssignableFrom(o2.get(i)))
                     {
                         if(flag.equals("ascending"))
-                        {
                             return 1;
-                        }
                         else
-                        {
                             return -1;
-                        }
                     }
                     else
                     {
-                        if(flag.equals("descending"))
-                        {
+                        if(flag.equals("ascending"))
                             return -1;
-                        }
                         else
-                        {
                             return 1;
-                        }
                     }
                 }
                 return 0;
