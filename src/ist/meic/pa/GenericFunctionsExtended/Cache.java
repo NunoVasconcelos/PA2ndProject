@@ -25,13 +25,17 @@ public class Cache {
         return cachedMethods.containsKey(key);
     }
 
-    public void invokeMethods(ArrayList<Class<?>> key , Object[] x) throws InvocationTargetException, IllegalAccessException {
+    public Object invokeMethods(ArrayList<Class<?>> key , Object[] x) throws InvocationTargetException, IllegalAccessException {
         ArrayList<InvokeWrapper> methodsToInvoke = cachedMethods.get(key);
+        Object result = new Object();
 
         for (InvokeWrapper m: methodsToInvoke)
         {
-            m.getMethod().invoke(m.getGfMethod(),x);
+            if (m.getWhichMethod().equals("applicable"))
+                result = m.getMethod().invoke(m.getGfMethod(),x);
+            else m.getMethod().invoke(m.getGfMethod(),x);
         }
+        return result;
     }
 
     public boolean isEmpty()

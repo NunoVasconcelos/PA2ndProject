@@ -9,26 +9,24 @@ public class InvokeWrapper {
 
     private GFMethod gfMethod;
     private Method method;
+    private String whichMethod;
 
     public GFMethod getGfMethod() {
         return gfMethod;
-    }
-
-    public void setGfMethod(GFMethod gfMethod) {
-        this.gfMethod = gfMethod;
     }
 
     public Method getMethod() {
         return method;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
+    public String getWhichMethod(){
+        return whichMethod;
     }
 
-    public InvokeWrapper(GFMethod gfMethod, Method method)
+    public InvokeWrapper(GFMethod gfMethod, Method method, String whichMethod)
     {
         this.gfMethod = gfMethod;
         this.method = method;
+        this.whichMethod = whichMethod;
     }
 }

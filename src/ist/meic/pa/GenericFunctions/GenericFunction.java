@@ -104,108 +104,110 @@ public class GenericFunction<T> {
         if(cache.containsKey(keysToCache))
         {
             try {
-                cache.invokeMethods(keysToCache,x);
+                result = cache.invokeMethods(keysToCache,x);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
-
-        //applicableMethods will have all the applicable methods to the current call that the user needs
-        ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
-        ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
-        ArrayList<ArrayList<Class<?>>> applicableAfterMethods = new ArrayList<>();
-
-
-        //getApplicableMethods will fill the applicableMethods ArrayList with all the applicable methods
-        getApplicableMethods(applicableBeforeMethods,beforeMap,x);
-        getApplicableMethods(applicableMethods,hashMap,x);
-        getApplicableMethods(applicableAfterMethods,afterMap,x);
-
-        //Sort the lists by specificity
-        sortApplicableMethods(applicableBeforeMethods,ASCENDING_FLAG);
-        sortApplicableMethods(applicableMethods,ASCENDING_FLAG);
-        sortApplicableMethods(applicableAfterMethods,DESCENDING_FLAG);
-
-        if (applicableMethods.isEmpty())
+        else
         {
-            ArrayList<Object> args = new ArrayList<>();
-            ArrayList<Object> classes = new ArrayList<>();
-            for (int i = 0; i < x.length; i++)
+            //applicableMethods will have all the applicable methods to the current call that the user needs
+            ArrayList<ArrayList<Class<?>>> applicableBeforeMethods = new ArrayList<>();
+            ArrayList<ArrayList<Class<?>>> applicableMethods = new ArrayList<>();
+            ArrayList<ArrayList<Class<?>>> applicableAfterMethods = new ArrayList<>();
+
+
+            //getApplicableMethods will fill the applicableMethods ArrayList with all the applicable methods
+            getApplicableMethods(applicableBeforeMethods,beforeMap,x);
+            getApplicableMethods(applicableMethods,hashMap,x);
+            getApplicableMethods(applicableAfterMethods,afterMap,x);
+
+            //Sort the lists by specificity
+            sortApplicableMethods(applicableBeforeMethods,ASCENDING_FLAG);
+            sortApplicableMethods(applicableMethods,ASCENDING_FLAG);
+            sortApplicableMethods(applicableAfterMethods,DESCENDING_FLAG);
+
+            if (applicableMethods.isEmpty())
             {
-                if(x[i] instanceof Object[])
-                    args.add(Arrays.deepToString((Object[]) x[i]));
-                else
-                    args.add(x[i]);
-
-                classes.add(x[i].getClass());
-            }
-
-            throw new IllegalArgumentException("\nNo methods for generic function " + functionName
-                    + " with args "  + args +
-                    "\nof classes " + classes);
-        }
-
-        try {
-
-
-            //Need a foreach, because every before method needs to be called.
-            for (ArrayList<Class<?>> beforeMethodClasses : applicableBeforeMethods)
-            {
-                Class[] classes = new Class[beforeMethodClasses.size()];
-                for (int i = 0; i < beforeMethodClasses.size(); i++)
+                ArrayList<Object> args = new ArrayList<>();
+                ArrayList<Object> classes = new ArrayList<>();
+                for (int i = 0; i < x.length; i++)
                 {
-                    classes[i] = beforeMethodClasses.get(i);
+                    if(x[i] instanceof Object[])
+                        args.add(Arrays.deepToString((Object[]) x[i]));
+                    else
+                        args.add(x[i]);
+
+                    classes.add(x[i].getClass());
                 }
-                GFMethod MethodToBeCalled = beforeMap.get(beforeMethodClasses);
-                Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classes);
-                beforeMethod.setAccessible(true);
 
-                beforeMethod.invoke(MethodToBeCalled, x);
-
-                methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod));
+                throw new IllegalArgumentException("\nNo methods for generic function " + functionName
+                        + " with args "  + args +
+                        "\nof classes " + classes);
             }
 
-            //Get the Class[] needed to use in getDeclaredMethod()
-            ArrayList<Class<?>> args = applicableMethods.get(0);
-            Class[] classes = new Class[args.size()];
-            for (int i = 0; i < args.size(); i++)
-            {
-                classes[i] = args.get(i);
-            }
-
-            //Get the GFMethod with the right call function
-            GFMethod methodToBeCalled = hashMap.get(args);
-            Method finalMethod = methodToBeCalled.getClass().getDeclaredMethod("call", classes);
-            finalMethod.setAccessible(true);
-
-            //Invoke the call function, giving the VarArgs that we received
-            result = finalMethod.invoke(methodToBeCalled, x);
-            methodsToCache.add(new InvokeWrapper(methodToBeCalled,finalMethod));
+            try {
 
 
-            //Need a foreach, because every before method needs to be called.
-            for (ArrayList<Class<?>> afterMethodClasses : applicableAfterMethods)
-            {
-                Class[] classesAfter = new Class[afterMethodClasses.size()];
-                for (int i = 0; i < afterMethodClasses.size(); i++)
+                //Need a foreach, because every before method needs to be called.
+                for (ArrayList<Class<?>> beforeMethodClasses : applicableBeforeMethods)
                 {
-                    classesAfter[i] = afterMethodClasses.get(i);
-                }
-                GFMethod MethodToBeCalled = afterMap.get(afterMethodClasses);
-                Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classesAfter);
-                beforeMethod.setAccessible(true);
+                    Class[] classes = new Class[beforeMethodClasses.size()];
+                    for (int i = 0; i < beforeMethodClasses.size(); i++)
+                    {
+                        classes[i] = beforeMethodClasses.get(i);
+                    }
+                    GFMethod MethodToBeCalled = beforeMap.get(beforeMethodClasses);
+                    Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classes);
+                    beforeMethod.setAccessible(true);
 
-                beforeMethod.invoke(MethodToBeCalled, x);
-                methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod));
+                    beforeMethod.invoke(MethodToBeCalled, x);
+
+                    methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod, "before"));
+                }
+
+                //Get the Class[] needed to use in getDeclaredMethod()
+                ArrayList<Class<?>> args = applicableMethods.get(0);
+                Class[] classes = new Class[args.size()];
+                for (int i = 0; i < args.size(); i++)
+                {
+                    classes[i] = args.get(i);
+                }
+
+                //Get the GFMethod with the right call function
+                GFMethod methodToBeCalled = hashMap.get(args);
+                Method finalMethod = methodToBeCalled.getClass().getDeclaredMethod("call", classes);
+                finalMethod.setAccessible(true);
+
+                //Invoke the call function, giving the VarArgs that we received
+                result = finalMethod.invoke(methodToBeCalled, x);
+                methodsToCache.add(new InvokeWrapper(methodToBeCalled,finalMethod, "applicable"));
+
+
+                //Need a foreach, because every before method needs to be called.
+                for (ArrayList<Class<?>> afterMethodClasses : applicableAfterMethods)
+                {
+                    Class[] classesAfter = new Class[afterMethodClasses.size()];
+                    for (int i = 0; i < afterMethodClasses.size(); i++)
+                    {
+                        classesAfter[i] = afterMethodClasses.get(i);
+                    }
+                    GFMethod MethodToBeCalled = afterMap.get(afterMethodClasses);
+                    Method beforeMethod = MethodToBeCalled.getClass().getDeclaredMethod("call", classesAfter);
+                    beforeMethod.setAccessible(true);
+
+                    beforeMethod.invoke(MethodToBeCalled, x);
+                    methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod, "after"));
+                }
+
+            } catch (Exception e) {
+                System.out.println(e);
             }
 
-        } catch (Exception e) {
-            System.out.println(e);
+            cache.addToCache(keysToCache,methodsToCache);
         }
-
-        cache.addToCache(keysToCache,methodsToCache);
 
         return result;
     }
