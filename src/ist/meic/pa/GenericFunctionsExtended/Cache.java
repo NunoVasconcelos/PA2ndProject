@@ -8,14 +8,14 @@ import java.util.HashMap;
 
 public class Cache {
 
-    private HashMap<ArrayList<Class<?>>,ArrayList<Method>> cachedMethods;
+    private HashMap<ArrayList<Class<?>>,ArrayList<InvokeWrapper>> cachedMethods;
 
     public Cache()
     {
         cachedMethods = new HashMap<>();
     }
 
-    public void addToCache(ArrayList<Class<?>> key,ArrayList<Method> value)
+    public void addToCache(ArrayList<Class<?>> key,ArrayList<InvokeWrapper> value)
     {
         cachedMethods.put(key,value);
     }
@@ -25,12 +25,12 @@ public class Cache {
         return cachedMethods.containsKey(key);
     }
 
-    public void invokeMethods(ArrayList<Class<?>> key ,Object obj, Object[] objs) throws InvocationTargetException, IllegalAccessException {
-        ArrayList<Method> methodsToInvoke = cachedMethods.get(key);
+    public void invokeMethods(ArrayList<Class<?>> key , Object[] x) throws InvocationTargetException, IllegalAccessException {
+        ArrayList<InvokeWrapper> methodsToInvoke = cachedMethods.get(key);
 
-        for (Method m: methodsToInvoke)
+        for (InvokeWrapper m: methodsToInvoke)
         {
-            m.invoke(obj,objs);
+            m.getMethod().invoke(m.getGfMethod(),x);
         }
     }
 

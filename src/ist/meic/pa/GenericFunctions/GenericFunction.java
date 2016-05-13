@@ -2,6 +2,7 @@ package ist.meic.pa.GenericFunctions;
 
 
 import ist.meic.pa.GenericFunctionsExtended.Cache;
+import ist.meic.pa.GenericFunctionsExtended.InvokeWrapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -97,13 +98,13 @@ public class GenericFunction<T> {
     public Object call(T ...x){
 
         Object result = new Object();
-        ArrayList<Method> methodsToCache = new ArrayList<>();
+        ArrayList<InvokeWrapper> methodsToCache = new ArrayList<>();
         ArrayList<Class<?>> keysToCache = getClasses(x);
 
         if(cache.containsKey(keysToCache))
         {
             try {
-                cache.invokeMethods(keysToCache,new Object(),x);
+                cache.invokeMethods(keysToCache,x);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -162,7 +163,8 @@ public class GenericFunction<T> {
                 beforeMethod.setAccessible(true);
 
                 beforeMethod.invoke(MethodToBeCalled, x);
-                methodsToCache.add(beforeMethod);
+
+                methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod));
             }
 
             //Get the Class[] needed to use in getDeclaredMethod()
@@ -180,7 +182,7 @@ public class GenericFunction<T> {
 
             //Invoke the call function, giving the VarArgs that we received
             result = finalMethod.invoke(methodToBeCalled, x);
-            methodsToCache.add(finalMethod);
+            methodsToCache.add(new InvokeWrapper(methodToBeCalled,finalMethod));
 
 
             //Need a foreach, because every before method needs to be called.
@@ -196,7 +198,7 @@ public class GenericFunction<T> {
                 beforeMethod.setAccessible(true);
 
                 beforeMethod.invoke(MethodToBeCalled, x);
-                methodsToCache.add(beforeMethod);
+                methodsToCache.add(new InvokeWrapper(MethodToBeCalled,beforeMethod));
             }
 
         } catch (Exception e) {
